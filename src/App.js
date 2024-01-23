@@ -1,4 +1,6 @@
 import React from 'react';
+import Axios from "axios";
+
 import {
   AppBar,
   Box,
@@ -10,12 +12,15 @@ import {
   Toolbar,
   Typography,
   MenuItem,
-  TextField, Select, FormControl, InputLabel
+  TextField,
+  Select,
+  FormControl,
+  InputLabel, TableCell, TableContainer, Table, TableHead, TableRow, TableBody
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useTheme } from '@mui/material/styles';
-
+import axios from "axios";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -31,6 +36,13 @@ const useStyles = makeStyles(() => ({
     marginTop: useTheme().spacing(14),
   },
   cryptoInputBox: {
+    marginBottom: 10,
+    // display: 'flex',
+    // alignItems: 'center',
+    // justifyContent: "space-between",
+  },
+  cryptoOutputBox: {
+    marginBottom: 20,
     // display: 'flex',
     // alignItems: 'center',
     // justifyContent: "space-between",
@@ -47,9 +59,35 @@ const useStyles = makeStyles(() => ({
   // },
 }));
 
+function createData(name, calories, fat, carbs, protein) {
+  return { name, calories, fat, carbs, protein };
+}
+
+const rows = [
+  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+  createData('Eclair', 262, 16.0, 24, 6.0),
+  createData('Cupcake', 305, 3.7, 67, 4.3),
+  createData('Gingerbread', 356, 16.0, 49, 3.9),
+];
+
 
 function App() {
   const classes = useStyles();
+  const [data, setData] = React.useState();
+
+  React.useEffect(() => {
+    axios
+        .get('https://api.coincap.io/v2/rates')
+        .then(function (response) {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }, []);
+
+
 
   return (
       <>
@@ -72,15 +110,43 @@ function App() {
         <Container maxWidth={"lg"}>
           <Grid container spacing={3} columns={14}>
             <Grid item xs={10}>
-              <Paper>10</Paper>
+              <TableContainer component={Paper} sx={{mb: 10}} align="left" >
+                <Table sx={{ minWidth: 400 }} aria-label="simple table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="left" width={100}>Отдаете</TableCell>
+                      <TableCell align="left" width={20}>Тикер</TableCell>
+                      <TableCell align="left" width={100}>Получаете</TableCell>
+                      <TableCell align="left" width={20}>Тикер</TableCell>
+                      <TableCell align="left" width={60}>Резерв</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.map((row) => (
+                        <TableRow
+                            key={row.name}
+                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.name}
+                          </TableCell>
+                          <TableCell align="left">{row.calories}</TableCell>
+                          <TableCell align="left">{row.fat}</TableCell>
+                          <TableCell align="left">{row.carbs}</TableCell>
+                          <TableCell align="left">{row.protein}</TableCell>
+                        </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Grid>
             <Grid item xs={4}>
               <Paper>
                 <div className={classes.cryptoInputBox}>
-                  <FormControl sx={{mr:0.1, mt:2, minWidth: '67%' }} className={classes.currencyInput}>
-                    <TextField  label="Вы продаете"/>
+                  <FormControl sx={{mr:0.1, minWidth: '67%' }} className={classes.currencyInput}>
+                    <TextField  label="Отдаете"/>
                   </FormControl>
-                  <FormControl sx={{ml:0.1, mt:2, minWidth: '32%' }} className={classes.currencyType}>
+                  <FormControl sx={{ml:0.1, minWidth: '32%' }} className={classes.currencyType}>
                     <InputLabel id="demo-simple-select-autowidth-label">Валюта</InputLabel>
                     <Select value={''} autoWidth label="Age">
                       <MenuItem value="">Валюта</MenuItem>
@@ -90,11 +156,11 @@ function App() {
                     </Select>
                   </FormControl>
                 </div>
-                <div className={classes.cryptoInputBox}>
-                  <FormControl sx={{mr:0.1, mt:2, minWidth: '67%'}} className={classes.currencyInput}>
-                    <TextField  label="Вы получаете"/>
+                <div className={classes.cryptoOutputBox}>
+                  <FormControl sx={{mr:0.1, minWidth: '67%'}} className={classes.currencyInput}>
+                    <TextField  label="Пoлучаете"/>
                   </FormControl>
-                  <FormControl sx={{ml:0.1, mt:2, minWidth: '32%'}} className={classes.currencyType}>
+                  <FormControl sx={{ml:0.1, minWidth: '32%'}} className={classes.currencyType}>
                     <InputLabel id="demo-simple-select-autowidth-label">Валюта</InputLabel>
                     <Select value={''} autoWidth label="Валюта">
                       <MenuItem value=""><em>None</em></MenuItem>
